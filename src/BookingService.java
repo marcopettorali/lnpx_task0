@@ -1,9 +1,14 @@
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
 import javafx.collections.*;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -29,6 +34,8 @@ public class BookingService extends Application {
     private final Pane map = new Pane();
     //------------------------------------//
     private DBManager DBM;
+    private ComboBox CBOrari; 
+    private String OrarioScelto;
     
     public static void main(String[] args){
     Application.launch(BookingService.class, args);
@@ -79,6 +86,7 @@ public class BookingService extends Application {
     */
     private void VerificaCredenziali()
     {
+        TabPrenotazioni=new TabellaPrenotazioni();
         String username=TFUsername.getText();
         String password=TFPassword.getText();
        
@@ -86,9 +94,8 @@ public class BookingService extends Application {
         {
             TabPrenotazioni=new TabellaPrenotazioni();
             ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-            System.out.println(LReservations.get(0));
-            if(!LReservations.isEmpty())
-                TabPrenotazioni.RiempiTabellaReservation(LReservations);
+            System.out.println(LReservations.get(0).getDate());
+            TabPrenotazioni.RiempiTabellaReservation(LReservations);
             InterfacciaDiPrenotazione();
             
         }
@@ -99,16 +106,19 @@ public class BookingService extends Application {
     */
     private void InterfacciaDiPrenotazione()
     {
-        TabPrenotazioni=new TabellaPrenotazioni();
+       
         TabAuleDisp= new TabellaAuleDisponibili(WindowHeight * 10 / 20);
         
         DPGiorno=new DatePicker();
         DPGiorno.setShowWeekNumbers(false);
         DPGiorno.setMaxWidth(150);   
         ObservableList<String> comboItems = FXCollections.observableArrayList(
-            "8:30-9:30","9:30-10:30","10:30-11:30","12:30-13:30","14:30-15:30","15:30-16:30"
+            "8:30:00","9:30:00","10:30:00","11:30:00","12:30:00","13:30:00"
             );
-        ComboBox CBOrari = new ComboBox(comboItems);
+       CBOrari = new ComboBox(comboItems);
+        CBOrari.setOnAction((Event ev) -> {
+        OrarioScelto =  CBOrari.getSelectionModel().getSelectedItem().toString();    
+        });
         
         Button BTNFind = new Button("FIND");
         BTNFind.setOnAction((ActionEvent ev)->{CaricaAule();});
@@ -158,10 +168,11 @@ public class BookingService extends Application {
     */
     private void CaricaAule()
     {
-        
-      /*List<Room> LAvailableRoom= LoadRooms();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateFormat dateFormat2= new SimpleDateFormat("HH:mm:ss");
+        LocalDate DataSelezionata=DPGiorno.getValue();
+        List<Room> LAvailableRoom= DBM.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
         TabAuleDisp.RiempiTabellaAuleDisponibili(LAvailableRoom);
-        */
     }
     
     /* Funzione chiamata da InterfacciaDiPrenotazione() al click di Button BTNDelete
