@@ -7,10 +7,11 @@ import java.util.*;
 public class DBManager {
 
     private static Connection DBConnection;
-    private static final String DBMSAddress = "";
-    private static final String DBMSPort = "";
-    private static final String DBName = "";
-    private static final String DBMSUsername = "";
+    private static final String DBMSFormat="jdbc:mysql";
+    private static final String DBMSAddress = "127.0.0.1";
+    private static final String DBMSPort = "3306";
+    private static final String DBName = "task0";
+    private static final String DBMSUsername = "root";
     private static final String DBMSPassword = "";
 
     private static final String checkLoginQuery = "SELECT * FROM user WHERE Username = ? AND Password = ?";
@@ -43,7 +44,7 @@ public class DBManager {
 
     static {
         try {
-            DBConnection = DriverManager.getConnection(DBMSAddress + ":" + DBMSPort + "/" + DBName, DBMSUsername, DBMSPassword);
+            DBConnection = DriverManager.getConnection(DBMSFormat + "://"+DBMSAddress+":"+ DBMSPort + "/" + DBName, DBMSUsername, DBMSPassword);
         } catch (SQLException sqle) {
             System.out.println(sqle.getMessage());
         }
