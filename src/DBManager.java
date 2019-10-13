@@ -44,13 +44,13 @@ public class DBManager {
         }
     }
     
-    public static boolean checkLogin(String username, String password){
+   /* public static boolean checkLogin(String username, String password){
     
     }
     
     public static List<Reservation> loadUserReservations(String username){
     
-    }
+    }*/
     
     public static boolean ReservePC(String user, String rn, int pcnumb, String D, String T ){
         try(
