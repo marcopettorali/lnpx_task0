@@ -7,7 +7,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 public class TabellaPrenotazioni {
     private final TableView tb;
-    private ObservableList<Reservation> ReservationList;
+    private ObservableList ReservationList;
     TabellaPrenotazioni()
     {        
         tb = new TableView();
@@ -29,10 +29,13 @@ public class TabellaPrenotazioni {
     Questa funzione inserisce all'interno della TabellaPrenotazioni un array 
         di reservation che dovrà essere riempito da DBManager.
     */
-    public void RiempiTabellaReservation(List<Reservation> ArrayReservation)
+    public void RiempiTabellaReservation(ArrayList<Reservation> ArrayReservation)
     {
         ReservationList= FXCollections.observableArrayList();
-        ReservationList.addAll(ArrayReservation);
+        for(int i=0;i<ArrayReservation.size();i++)
+        {
+            ReservationList.add( FXCollections.observableArrayList(ArrayReservation.get(i).getClass(),ArrayReservation.get(i).getDate(),ArrayReservation.get(i).getHour(),ArrayReservation.get(i).getPCnumber()));
+        }
         tb.setItems(ReservationList);
         tb.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
