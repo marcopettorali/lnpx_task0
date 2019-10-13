@@ -1,4 +1,5 @@
 
+import java.util.List;
 import javafx.application.Application;
 import javafx.collections.*;
 import javafx.event.ActionEvent;
@@ -79,7 +80,9 @@ public class BookingService extends Application {
         String password=TFPassword.getText();
         if(/*Checklogin(username,password)*/true)   
         {
-            /*LoadUserReservation(username)*/  //
+          /*List<Reservation> LReservations = LoadUserReservation(username);
+            TabPrenotazioni.RiempiTabellaReservation(LReservations);*/
+            
             InterfacciaDiPrenotazione();
         }
     }
@@ -148,7 +151,10 @@ public class BookingService extends Application {
     */
     private void CaricaAule()
     {
-      /*LoadRooms();*/   
+        
+      /*List<Room> LAvailableRoom= LoadRooms();
+        TabAuleDisp.RiempiTabellaAuleDisponibili(LAvailableRoom);
+        */
     }
     
     /* Funzione chiamata da InterfacciaDiPrenotazione() al click di Button BTNDelete
