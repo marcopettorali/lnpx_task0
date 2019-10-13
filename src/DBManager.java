@@ -10,7 +10,7 @@ public class DBManager {
     private static final String DBMSFormat="jdbc:mysql";
     private static final String DBMSAddress = "127.0.0.1";
     private static final String DBMSPort = "3306";
-    private static final String DBName = "task0";
+    private static final String DBName = "pc_booking";
     private static final String DBMSUsername = "root";
     private static final String DBMSPassword = "";
 
