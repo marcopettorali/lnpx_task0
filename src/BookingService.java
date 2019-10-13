@@ -27,6 +27,7 @@ public class BookingService extends Application {
     public static final int WindowWidth = 1000;
     private final Pane map = new Pane();
     //------------------------------------//
+    private DBManager DBM;
     
     public static void main(String[] args){
     Application.launch(BookingService.class, args);
@@ -34,6 +35,7 @@ public class BookingService extends Application {
     
     @Override
     public void start(Stage primaryStage){ 
+               DBM=new DBManager();
                login();
                //primaryStage.setMaximized(true);
                //-----------D---------//
@@ -78,10 +80,12 @@ public class BookingService extends Application {
     {
         String username=TFUsername.getText();
         String password=TFPassword.getText();
-        if(/*Checklogin(username,password)*/true)   
+       
+        if(DBM.checkLogin(username,password))   
         {
-          /*List<Reservation> LReservations = LoadUserReservation(username);
-            TabPrenotazioni.RiempiTabellaReservation(LReservations);*/
+            List<Reservation> LReservations = DBM.loadUserReservations(username);
+            System.out.println(LReservations);
+            TabPrenotazioni.RiempiTabellaReservation(LReservations);
             
             InterfacciaDiPrenotazione();
         }
