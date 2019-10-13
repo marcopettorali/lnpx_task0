@@ -74,7 +74,7 @@ public class DBManager {
         return false;
     }
 
-    public static List<Reservation> loadUserReservations(String username) {
+    public static ArrayList<Reservation> loadUserReservations(String username) {
         try (
                 PreparedStatement ps = DBConnection.prepareStatement(loadUserReservationsQuery);) {
             
