@@ -84,12 +84,13 @@ public class BookingService extends Application {
        
         if(DBM.checkLogin(username,password))   
         {
+            TabPrenotazioni=new TabellaPrenotazioni();
             ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
             System.out.println(LReservations.get(0));
             if(!LReservations.isEmpty())
                 TabPrenotazioni.RiempiTabellaReservation(LReservations);
-            
             InterfacciaDiPrenotazione();
+            
         }
     }
     
