@@ -1,4 +1,5 @@
 
+import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
 import javafx.collections.*;
@@ -83,9 +84,10 @@ public class BookingService extends Application {
        
         if(DBM.checkLogin(username,password))   
         {
-            List<Reservation> LReservations = DBM.loadUserReservations(username);
-            System.out.println(LReservations);
-            TabPrenotazioni.RiempiTabellaReservation(LReservations);
+            ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+            System.out.println(LReservations.get(0));
+            if(!LReservations.isEmpty())
+                TabPrenotazioni.RiempiTabellaReservation(LReservations);
             
             InterfacciaDiPrenotazione();
         }
