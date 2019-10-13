@@ -25,7 +25,12 @@ public class DBManager {
             + "	    where b.StartTime=? and b.Date=?	"
             + "	    group by b.RoomName "
             + "		) as D "
-            + "where D.Capacity - D.Booked > 0; ";
+            + "where D.Capacity - D.Booked > 0 "
+            +" union  select  r1.RoomName, r1.Capacity,r1.Capacity "
+            +"   from room r1 "
+            +"   where r1.roomName not in (select b1.roomName"
+	    +"			         from booking b1"
+            +"                             where b1.StartTime=? and b1.Date=?);";
 
     private static final String queryCreateReservation = " INSERT INTO booking "
             + " VALUES (?,?,?,?,?);";
@@ -109,8 +114,8 @@ public class DBManager {
             Time res_time = Time.valueOf(T);
 
             ps.setString(1, user);
-            ps.setTime(2, res_time);
-            ps.setDate(3, res_date);
+            ps.setString(2, T);
+            ps.setString(3, D);
             ps.setInt(4, pcnumb);
             ps.setString(5, rn);
 
@@ -132,15 +137,10 @@ public class DBManager {
 
         try (
                 PreparedStatement ps = DBConnection.prepareStatement(queryDeleteReservation);) {
-            java.util.Date day = new SimpleDateFormat("yyyy-MM-dd").parse(D); /*Converting the Date String */
-
-            java.sql.Date res_date = new java.sql.Date(day.getTime());       /* into a java.sql.Date */
-
-            Time res_time = Time.valueOf(T);      /* Converting StartTime string into java.sql.Time */
-
+            
             ps.setString(1, user);
-            ps.setTime(2, res_time);
-            ps.setDate(3, res_date);
+            ps.setString(2,T);
+            ps.setString(3,D);
             ps.setInt(4, pcnumb);
             ps.setString(5, rn);
 
@@ -152,8 +152,6 @@ public class DBManager {
 
         } catch (SQLException io) {
             System.err.println("An error has occured during the deleting of a reservation ! \n");
-        } catch (ParseException pe) {
-            System.out.println("An error has occurred during the date parsing ! \n");
         }
         return true;
     }
@@ -162,18 +160,16 @@ public class DBManager {
 
         List<Room> available = new ArrayList<>();
         try (
-                PreparedStatement ps = DBConnection.prepareStatement(queryAvailableRooms);) {
-            java.util.Date day = new SimpleDateFormat("yyyy-MM-dd").parse(D);
-            java.sql.Date res_date = new java.sql.Date(day.getTime());
+            PreparedStatement ps = DBConnection.prepareStatement(queryAvailableRooms);) {
 
-            Time res_time = Time.valueOf(T);
-
-            ps.setTime(1, res_time);
-            ps.setDate(2, res_date);
-
+            ps.setString(1, T);
+            ps.setString(2,D);
+            ps.setString(3,T);
+            ps.setString(4,D);
+            
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-
+                
                 Room r = new Room(rs.getString("RoomName"), rs.getInt("Capacity"), rs.getInt("Available"));
                 available.add(r); /* Creation of the Room Bean and adding them into the returned list*/
 
@@ -181,10 +177,7 @@ public class DBManager {
             return available;
         } catch (SQLException io) {
             System.err.println("An error has occured during the research of a room ! \n");
-        } catch (ParseException pe) {
-            System.out.println("An error has occurred during the date parsing ! \n");
-        }
-
+        } 
         return null;
     }
 
@@ -192,15 +185,10 @@ public class DBManager {
 
         List<PC> available = new ArrayList<>();
         try (
-                PreparedStatement ps = DBConnection.prepareStatement(queryAvailablePC);) {
-            java.util.Date day = new SimpleDateFormat("yyyy-MM-dd").parse(D);
-            java.sql.Date res_date = new java.sql.Date(day.getTime());
-
-            Time res_time = Time.valueOf(T);
-
+            PreparedStatement ps = DBConnection.prepareStatement(queryAvailablePC);) {
             ps.setString(1, rn);
-            ps.setDate(2, res_date);
-            ps.setTime(3, res_time);
+            ps.setString(2, D);
+            ps.setString(3,T);
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -212,10 +200,7 @@ public class DBManager {
             return available;
         } catch (SQLException io) {
             System.err.println("An error has occured during the research of a PC ! \n");
-        } catch (ParseException pe) {
-            System.out.println("An error has occurred during the date parsing ! \n");
-        }
-
+        } 
         return null;
     }
 
