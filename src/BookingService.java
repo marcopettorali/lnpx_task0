@@ -27,6 +27,10 @@ public class BookingService extends Application {
     private final Pane map = new Pane();
     //------------------------------------//
     
+    public static void main(String[] args){
+    Application.launch(BookingService.class, args);
+    }
+    
     @Override
     public void start(Stage primaryStage){ 
                login();
