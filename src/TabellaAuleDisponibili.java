@@ -1,12 +1,13 @@
 
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import java.util.*;
+import javafx.collections.*;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 
 public class TabellaAuleDisponibili {
     private final TableView tb;
-   
+    private ObservableList<Room> ObListRoom;
     TabellaAuleDisponibili(double tbHeigth)
     {        
         tb = new TableView();
@@ -21,6 +22,15 @@ public class TabellaAuleDisponibili {
         tb.setPrefHeight(tbHeigth);
         //--------------------------//
     }
+    
+    public void RiempiTabellaAuleDisponibili(List<Room> ArrayRooms)
+    {
+        ObListRoom= FXCollections.observableArrayList();
+        ObListRoom.addAll(ArrayRooms);
+        tb.setItems(ObListRoom);
+        tb.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    }
+    
     
     public TableView gettb()
     {
