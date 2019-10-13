@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Ott 13, 2019 alle 13:50
+-- Generation Time: Ott 13, 2019 alle 18:04
 -- Versione del server: 5.6.20
 -- PHP Version: 5.5.15
 
@@ -19,6 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `pc_booking`
 --
+CREATE DATABASE IF NOT EXISTS `pc_booking` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `pc_booking`;
 
 -- --------------------------------------------------------
 
@@ -40,6 +42,7 @@ CREATE TABLE IF NOT EXISTS `booking` (
 
 INSERT INTO `booking` (`Username`, `StartTime`, `Date`, `PCNumber`, `RoomName`) VALUES
 ('m.pettorali', '10:30:00', '2019-10-12', 1, 'S.I.2'),
+('r.nocerino', '12:30:00', '2019-10-14', 1, 'S.I.1'),
 ('r.xefraj', '09:30:00', '2019-10-12', 1, 'S.I.3'),
 ('d.lorenzoni2', '10:30:00', '2019-10-12', 2, 'S.I.1'),
 ('r.nocerino', '10:30:00', '2019-10-12', 3, 'S.I.1');
