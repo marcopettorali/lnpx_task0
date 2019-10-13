@@ -94,7 +94,7 @@ public class BookingService extends Application {
         {
             TabPrenotazioni=new TabellaPrenotazioni();
             ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-            System.out.println(LReservations.get(0).getDate());
+            //System.out.println(LReservations.get(0).getDate());
             TabPrenotazioni.RiempiTabellaReservation(LReservations);
             InterfacciaDiPrenotazione();
             
