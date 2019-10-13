@@ -1,24 +1,27 @@
 
 import java.util.*;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 
 public class TabellaPrenotazioni {
-    private final TableView tb;
-    private ObservableList ReservationList;
+    private final TableView<Reservation> tb;
+    private ObservableList<Reservation> ReservationList;
     TabellaPrenotazioni()
     {        
-        tb = new TableView();
+        tb = new TableView<Reservation>();
+        TableColumn Username = new TableColumn("Username"); 
+        Username.setCellValueFactory(new PropertyValueFactory<>("username")); 
         TableColumn Room = new TableColumn("Room"); 
-        Room.setCellValueFactory(new PropertyValueFactory<>("Room")); 
-        TableColumn Day = new TableColumn("Day"); 
-        Day.setCellValueFactory(new PropertyValueFactory<>("Day")); 
-        TableColumn Hour = new TableColumn("DataScadenza"); 
-        Hour.setCellValueFactory(new PropertyValueFactory<>("Hour")); 
-        TableColumn PC = new TableColumn("PC"); 
-        PC.setCellValueFactory(new PropertyValueFactory<>("PC"));   
+        Room.setCellValueFactory(new PropertyValueFactory<>("room")); 
+        TableColumn Day = new TableColumn("PC"); 
+        Day.setCellValueFactory(new PropertyValueFactory<>("PCnumber")); 
+        TableColumn Hour = new TableColumn("Date"); 
+        Hour.setCellValueFactory(new PropertyValueFactory<>("date")); 
+        TableColumn PC = new TableColumn("Hour"); 
+        PC.setCellValueFactory(new PropertyValueFactory<>("hour"));   
         tb.getColumns().addAll(Room,Day,Hour,PC);
         //---------------D-----------//
         tb.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -34,7 +37,7 @@ public class TabellaPrenotazioni {
         ReservationList= FXCollections.observableArrayList();
         for(int i=0;i<ArrayReservation.size();i++)
         {
-            ReservationList.add( FXCollections.observableArrayList(ArrayReservation.get(i).getClass(),ArrayReservation.get(i).getDate(),ArrayReservation.get(i).getHour(),ArrayReservation.get(i).getPCnumber()));
+            ReservationList.add(ArrayReservation.get(i));
         }
         tb.setItems(ReservationList);
         tb.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -45,3 +48,4 @@ public class TabellaPrenotazioni {
         return tb;
     }
 }
+
