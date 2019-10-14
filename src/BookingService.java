@@ -41,10 +41,13 @@ public class BookingService extends Application {
     private DBManager DBM;
     private ComboBox CBOrari; 
     private String OrarioScelto;
+    private User ActualUser;
     
     public static void main(String[] args){
     Application.launch(BookingService.class, args);
     }
+    private Text TxReservations;
+    private Text TxRooms;
     
     @Override
     public void start(Stage primaryStage){ 
@@ -116,10 +119,8 @@ public class BookingService extends Application {
         {
             TabPrenotazioni=new TabellaPrenotazioni();
             ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-            //System.out.println(LReservations.get(0).getDate());
             TabPrenotazioni.RiempiTabellaReservation(LReservations);
             InterfacciaDiPrenotazione();
-            
         }
     }
     
@@ -137,7 +138,7 @@ public class BookingService extends Application {
         ObservableList<String> comboItems = FXCollections.observableArrayList(
             "8:30:00","9:30:00","10:30:00","11:30:00","12:30:00","13:30:00"
             );
-       CBOrari = new ComboBox(comboItems);
+        CBOrari = new ComboBox(comboItems);
         CBOrari.setOnAction((Event ev) -> {
         OrarioScelto =  CBOrari.getSelectionModel().getSelectedItem().toString();    
         });
@@ -149,9 +150,10 @@ public class BookingService extends Application {
                 
         HBox HBCerca= new HBox(10);
         HBCerca.getChildren().addAll(CBOrari,BTNFind);
-        
+        TxReservations = new Text("Your Reservations");
+        TxRooms = new Text("Available Rooms");
         VBox VBCerca= new VBox(5);
-        VBCerca.getChildren().addAll(DPGiorno,HBCerca,TabPrenotazioni.gettb(),BTNDelete);
+        VBCerca.getChildren().addAll(DPGiorno,HBCerca,TxReservations,TabPrenotazioni.gettb(),BTNDelete);
         Button BTNReserve=new Button("RESERVE");
         //-----------D--------//
         BTNReserve.setPrefHeight(WindowHeight * 1 / 20);
@@ -159,7 +161,7 @@ public class BookingService extends Application {
         
         
         VBAule= new VBox(5);
-        VBAule.getChildren().addAll(TabAuleDisp.gettb(),BTNReserve,map);
+        VBAule.getChildren().addAll(TxRooms,TabAuleDisp.gettb(),BTNReserve,map);
         BTNReserve.setOnAction((ActionEvent ev)->{BookPC();});
         //------------------D-----------//
         SplitPane sp = new SplitPane();
@@ -206,7 +208,17 @@ public class BookingService extends Application {
     */
     private void AnnullaPrenotazione()
     {
-        /*DeleteReservation()*/
+        String room=TabPrenotazioni.getSelected().getRoom();
+        int PCnumber=Integer.parseInt(TabPrenotazioni.getSelected().getPCnumber());
+        String date=TabPrenotazioni.getSelected().getDate();
+        String hour=TabPrenotazioni.getSelected().getHour();
+        DBM.DeleteReservation(username,room,PCnumber,date,hour);
+        /* *************************************************************** */
+        ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+        TabPrenotazioni.RiempiTabellaReservation(LReservations);
+        TabPrenotazioni.relaseSelection();
+        /* *************************************************************** */
+        
     }
     
     /* Funzione chiamata da InterfacciaDiPrenotazione() al click di Button BTNReserve
