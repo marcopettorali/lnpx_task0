@@ -31,6 +31,7 @@ public class BookingService extends Application {
     private TabellaPrenotazioni TabPrenotazioni;
     private TabellaAuleDisponibili TabAuleDisp;
     private String username;
+    private VBox VBAule;
     //-------------------D----------------//
     public static final int WindowHeight = 600;
     public static final int WindowWidth = 1000;
@@ -157,7 +158,7 @@ public class BookingService extends Application {
         //--------------------//
         
         
-        VBox VBAule= new VBox(5);
+        VBAule= new VBox(5);
         VBAule.getChildren().addAll(TabAuleDisp.gettb(),BTNReserve,map);
         BTNReserve.setOnAction((ActionEvent ev)->{BookPC();});
         //------------------D-----------//
@@ -221,19 +222,47 @@ public class BookingService extends Application {
             map.getChildren().removeAll(pcarray);
             pcarray = null;
         }
+        
         String roomName = TabAuleDisp.getSelected().getRoomName();
         int roomCapacity = TabAuleDisp.getSelected().getCapacity();
         int rowNumber = TabAuleDisp.getSelected().getRowNumber();
+        int AvailablePC= TabAuleDisp.getSelected().getAvailablePCs();
+        
+        /* Prendo la stanza e l'indice selezionato per andare a modificare l'ObList*/
+        Room SelectedRoom=TabAuleDisp.getSelected();
+        int index= TabAuleDisp.gettb().getSelectionModel().getFocusedIndex();
+        
         TabAuleDisp.relaseSelection();
+       
+        
+        
+        
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         List <PC> pcavaiablelist = DBM.LoadAvailablePC(roomName,DPGiorno.getValue().format(formatter),OrarioScelto);
-        int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
-        pcarray = drawmap(rowNumber,roomCapacity,indexPcSelected);
-        DBM.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto);
-        map.getChildren().addAll(pcarray);
-        //Up the reservation table
-        ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-        TabPrenotazioni.RiempiTabellaReservation(LReservations);
+        if(!pcavaiablelist.isEmpty())
+        {
+            /* ---- R --- Modificare solo la riga della tabella -- */
+            System.out.println(index);
+            SelectedRoom.setAvailablePCs(AvailablePC - 1);
+            TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
+            /* ---------------------------------------------------- */
+            
+            int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
+            pcarray = drawmap(rowNumber,roomCapacity,indexPcSelected);
+            DBM.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto);
+            map.getChildren().addAll(pcarray);
+        
+            //Up the reservation table
+            ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+            TabPrenotazioni.RiempiTabellaReservation(LReservations);
+        }
+        else
+        {
+            /* Nessuna Postazione Disponibile */
+            System.out.println(index);
+            SelectedRoom.setAvailablePCs(0);
+            TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
+        }
     }
     
     private PCIcon[] drawmap(int RowNumber,int Capacity,int selectedIndex) {
