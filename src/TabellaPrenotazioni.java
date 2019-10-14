@@ -43,6 +43,14 @@ public class TabellaPrenotazioni {
         tb.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
     
+    public Reservation getSelected(){
+        return tb.getSelectionModel().getSelectedItem();
+    }
+    
+    public void relaseSelection(){
+        tb.getSelectionModel().clearSelection();
+    }
+    
     public TableView gettb()
     {
         return tb;
