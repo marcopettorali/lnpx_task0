@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Ott 14, 2019 alle 21:26
+-- Generation Time: Ott 14, 2019 alle 21:42
 -- Versione del server: 5.6.20
 -- PHP Version: 5.5.15
 
@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS `booking` (
 INSERT INTO `booking` (`Username`, `StartTime`, `Date`, `PCNumber`, `RoomName`) VALUES
 ('m.pettorali', '10:30:00', '2019-10-12', 1, 'S.I.2'),
 ('m.pettorali', '10:30:00', '2019-10-20', 1, 'S.I.2'),
+('r.nocerino', '09:30:00', '2019-10-16', 1, 'S.I.2'),
+('r.nocerino', '11:30:00', '2019-10-17', 1, 'S.I.3'),
 ('r.nocerino', '12:30:00', '2019-10-14', 1, 'S.I.1'),
 ('r.nocerino', '12:30:00', '2019-10-20', 1, 'S.I.1'),
 ('r.xefraj', '09:30:00', '2019-10-12', 1, 'S.I.3'),
@@ -80,7 +82,8 @@ INSERT INTO `pc` (`PCNumber`, `RoomName`) VALUES
 (2, 'S.I.3'),
 (3, 'S.I.3'),
 (4, 'S.I.3'),
-(5, 'S.I.3');
+(5, 'S.I.3'),
+(6, 'S.I.3');
 
 -- --------------------------------------------------------
 
@@ -99,9 +102,9 @@ CREATE TABLE IF NOT EXISTS `room` (
 --
 
 INSERT INTO `room` (`RoomName`, `Capacity`, `RowNumber`) VALUES
-('S.I.1', 4, 5),
-('S.I.2', 4, 5),
-('S.I.3', 5, 4);
+('S.I.1', 4, 2),
+('S.I.2', 4, 2),
+('S.I.3', 6, 3);
 
 -- --------------------------------------------------------
 
