@@ -30,10 +30,12 @@ public class BookingService extends Application {
     private DatePicker DPGiorno; //02
     private TabellaPrenotazioni TabPrenotazioni;
     private TabellaAuleDisponibili TabAuleDisp;
+    private String username;
     //-------------------D----------------//
     public static final int WindowHeight = 600;
     public static final int WindowWidth = 1000;
     private final Pane map = new Pane();
+    PCIcon[] pcarray = null; 
     //------------------------------------//
     private DBManager DBM;
     private ComboBox CBOrari; 
@@ -89,6 +91,10 @@ public class BookingService extends Application {
                BTNLogin.setOnAction((ActionEvent ev)->{VerificaCredenziali();});
                
                VBox vb=new VBox(10);
+               TFUsername.setMaxWidth(WindowWidth * 3 / 10);
+               TFPassword.setMaxWidth(WindowWidth * 3 / 10);
+               TFPasswordVisible.setMaxWidth(WindowWidth * 3 / 10);
+               vb.setPrefSize(WindowWidth, WindowHeight);
                vb.setAlignment(Pos.CENTER);
                vb.getChildren().addAll(TxUsername,TFUsername,TxPassword,TFPassword,TFPasswordVisible,SHPassword,BTNLogin); 
                GruppoElementi=new Group(vb);
@@ -102,8 +108,7 @@ public class BookingService extends Application {
     */
     private void VerificaCredenziali()
     {
-        TabPrenotazioni=new TabellaPrenotazioni();
-        String username=TFUsername.getText();
+        username = TFUsername.getText();
         String password=TFPassword.getText();
        
         if(DBM.checkLogin(username,password))   
@@ -189,6 +194,10 @@ public class BookingService extends Application {
         LocalDate DataSelezionata=DPGiorno.getValue();
         List<Room> LAvailableRoom= DBM.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
         TabAuleDisp.RiempiTabellaAuleDisponibili(LAvailableRoom);
+        if(pcarray != null){
+            map.getChildren().removeAll(pcarray);
+            pcarray = null;
+        }
     }
     
     /* Funzione chiamata da InterfacciaDiPrenotazione() al click di Button BTNDelete
@@ -203,19 +212,32 @@ public class BookingService extends Application {
         - Effettua una prenotazione
         - Mostra la postazione prenotata 
     */
-    private /*PC[]*/ void BookPC()
+    private void BookPC()
     {
         /*ReservePC()*/
         /*LoadAvailablePCs()*/
         //Al posto del 5 e del 20 vanno messi il numero di righe e la capacità delle aule da recuperare nel DB
-        PCIcon[] pcarray = drawmap(5,20);
-        //Al posto del 7 va messo il numero del PC prenotato
-        pcarray[7].FillYellow();
+        if(pcarray != null){
+            map.getChildren().removeAll(pcarray);
+            pcarray = null;
+        }
+        String roomName = TabAuleDisp.getSelected().getRoomName();
+        int roomCapacity = TabAuleDisp.getSelected().getCapacity();
+        int rowNumber = TabAuleDisp.getSelected().getRowNumber();
+        TabAuleDisp.relaseSelection();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        List <PC> pcavaiablelist = DBM.LoadAvailablePC(roomName,DPGiorno.getValue().format(formatter),OrarioScelto);
+        int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
+        pcarray = drawmap(rowNumber,roomCapacity,indexPcSelected);
+        DBM.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto);
         map.getChildren().addAll(pcarray);
+        //Up the reservation table
+        ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+        TabPrenotazioni.RiempiTabellaReservation(LReservations);
     }
     
-    private PCIcon[] drawmap(int RowNumber,int Capacity) {
-        PCIcon[] pcarray = new PCIcon[Capacity];
+    private PCIcon[] drawmap(int RowNumber,int Capacity,int selectedIndex) {
+        pcarray = new PCIcon[Capacity];
         int Max = RowNumber;
         double x_offset;
         double y_offset;
@@ -228,8 +250,11 @@ public class BookingService extends Application {
         x_offset = (WindowWidth/2) - MapSize;
         double Dim = MapSize  / (2*Max);
         for(int i=0 ; i < Capacity ; i++){
-            PCIcon NewPc = new PCIcon(i%RowNumber ,i/RowNumber,Dim,i + 1,x_offset,y_offset);
+            PCIcon NewPc = new PCIcon(i/RowNumber ,i%RowNumber,Dim, i%RowNumber * (Capacity/RowNumber) + i/RowNumber + 1 ,x_offset,y_offset);
             pcarray[i] = NewPc;
+            if(i == (selectedIndex-1)){
+                NewPc.FillYellow();
+            }
         }
         return pcarray;
     }
