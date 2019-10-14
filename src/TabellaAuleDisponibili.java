@@ -32,6 +32,14 @@ public class TabellaAuleDisponibili {
         tb.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
     
+    public Room getSelected(){
+        return tb.getSelectionModel().getSelectedItem();
+    }
+    
+    public void relaseSelection(){
+        tb.getSelectionModel().clearSelection();
+    }
+    
     
     public TableView gettb()
     {
