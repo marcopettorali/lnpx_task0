@@ -29,5 +29,9 @@ public class Room {
     public int getRowNumber() {
         return rowNumber.get();
     }
+
+    public void setAvailablePCs(int availablePCs) {
+        this.availablePCs = new SimpleIntegerProperty(availablePCs);
+    }
     
 }
