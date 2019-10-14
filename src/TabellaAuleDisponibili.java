@@ -6,7 +6,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 
 public class TabellaAuleDisponibili {
-    private final TableView<Room> tb;
+    private TableView<Room> tb;
     private ObservableList<Room> ObListRoom;
     TabellaAuleDisponibili(double tbHeigth)
     {        
@@ -40,6 +40,11 @@ public class TabellaAuleDisponibili {
         tb.getSelectionModel().clearSelection();
     }
     
+    public void updateRoomsInformation(int row, Room NewRoomInformations)
+    {
+        ObListRoom.set(row, NewRoomInformations);
+        tb.setItems(ObListRoom);
+    }
     
     public TableView gettb()
     {
