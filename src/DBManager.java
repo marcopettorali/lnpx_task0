@@ -18,6 +18,10 @@ public class DBManager {
 
     private static final String loadUserReservationsQuery = "SELECT * FROM booking WHERE Username = ? AND Date > ?";
 
+    private static final String queryControlReservations = "select count(*) as NumPrenotazioni "
+                                                         + "from booking b "
+                                                         + "where b.username=? and b.StartTime=? and b.date=?;";
+    
     private static final String queryAvailableRooms = "select D.RoomName,D.Capacity - D.Booked as Available, D.Capacity, D.RowNumber	"
             + "from (   "
             + "          select b.RoomName, count(*) as Booked ,r.Capacity, r.RowNumber"
@@ -107,12 +111,23 @@ public class DBManager {
 
     public static boolean ReservePC(String user, String rn, int pcnumb, String D, String T) {
         try (
-                PreparedStatement ps = DBConnection.prepareStatement(queryCreateReservation);) {
-            java.util.Date day = new SimpleDateFormat("yyyy-MM-dd").parse(D);
-            java.sql.Date res_date = new java.sql.Date(day.getTime());
-
-            Time res_time = Time.valueOf(T);
-
+                PreparedStatement ps = DBConnection.prepareStatement(queryCreateReservation);
+                PreparedStatement ps1 = DBConnection.prepareStatement(queryControlReservations); ) {
+            
+            ps1.setString(1,user);
+            ps1.setString(2,T);
+            ps1.setString(3,D);
+            
+            ResultSet rs1 = ps1.executeQuery();
+            int k=0;
+            while(rs1.next()){   
+               k=rs1.getInt("NumPrenotazioni");
+            }
+           
+            if(k>0){   
+               return false;
+            }
+                        
             ps.setString(1, user);
             ps.setString(2, T);
             ps.setString(3, D);
@@ -127,9 +142,7 @@ public class DBManager {
 
         } catch (SQLException io) {
             System.err.println("An error has occured during the reservation of a PC ! \n");
-        } catch (ParseException pe) {
-            System.out.println("An error has occurred during the date parsing ! \n");
-        }
+        } 
         return true;
     }
 
