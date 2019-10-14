@@ -18,15 +18,15 @@ public class DBManager {
 
     private static final String loadUserReservationsQuery = "SELECT * FROM booking WHERE Username = ? AND Date > ?";
 
-    private static final String queryAvailableRooms = "select D.RoomName,D.Capacity - D.Booked as Available, D.Capacity	"
+    private static final String queryAvailableRooms = "select D.RoomName,D.Capacity - D.Booked as Available, D.Capacity, D.RowNumber	"
             + "from (   "
-            + "          select b.RoomName, count(*) as Booked ,r.Capacity "
+            + "          select b.RoomName, count(*) as Booked ,r.Capacity, r.RowNumber"
             + "          from booking b inner join room r on (r.RoomName=b.RoomName)"
             + "	    where b.StartTime=? and b.Date=?	"
             + "	    group by b.RoomName "
             + "		) as D "
             + "where D.Capacity - D.Booked > 0 "
-            +" union  select  r1.RoomName, r1.Capacity,r1.Capacity "
+            +" union  select  r1.RoomName, r1.Capacity,r1.Capacity,r1.RowNumber "
             +"   from room r1 "
             +"   where r1.roomName not in (select b1.roomName"
 	    +"			         from booking b1"
@@ -170,7 +170,7 @@ public class DBManager {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 
-                Room r = new Room(rs.getString("RoomName"), rs.getInt("Capacity"), rs.getInt("Available"));
+                Room r = new Room(rs.getString("RoomName"), rs.getInt("Capacity"), rs.getInt("Available"),rs.getInt("RowNumber"));
                 available.add(r); /* Creation of the Room Bean and adding them into the returned list*/
 
             }
