@@ -20,7 +20,7 @@ import javafx.stage.*;
 
 public class BookingService extends Application {
     private TextField TFUsername;
-    private TextField TFPassword;
+    private PasswordField TFPassword;
     private Text TxUsername;
     private Text TxPassword;
     private Group GruppoElementi;
@@ -45,15 +45,13 @@ public class BookingService extends Application {
     public void start(Stage primaryStage){ 
                DBM=new DBManager();
                login();
-               //primaryStage.setMaximized(true);
                //-----------D---------//
                primaryStage.setHeight(WindowHeight);
                primaryStage.setWidth(WindowWidth);
                //---------------------//
                primaryStage.setScene(scene);
                primaryStage.show();
-        
-
+               primaryStage.setResizable(false);
             }
     
     /* Questa funzione viene chiamata all'apertura della pagina 
@@ -63,8 +61,10 @@ public class BookingService extends Application {
     */
     private void login()
     {
-               TFUsername=new TextField("");                
-               TFPassword=new TextField("");
+               TFUsername=new TextField("");          
+               TFUsername.setPromptText("Your Username");
+               TFPassword=new PasswordField();
+               TFPassword.setPromptText("Your password");
                //-----------D--------//
                TxUsername = new Text("Username:");
                TxPassword = new Text("Password:");
