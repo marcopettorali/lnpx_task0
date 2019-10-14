@@ -28,8 +28,8 @@ public class BookingService extends Application {
     private Group GruppoElementi;
     private Scene scene;
     private DatePicker DPGiorno; //02
-    private TabellaPrenotazioni TabPrenotazioni;
-    private TabellaAuleDisponibili TabAuleDisp;
+    private TableReservations TabPrenotazioni;
+    private TableAvailableRooms TabAuleDisp;
     private String username;
     private VBox VBAule;
     //-------------------D----------------//
@@ -117,9 +117,9 @@ public class BookingService extends Application {
        
         if(DBM.checkLogin(username,password))   
         {
-            TabPrenotazioni=new TabellaPrenotazioni();
+            TabPrenotazioni=new TableReservations();
             ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-            TabPrenotazioni.RiempiTabellaReservation(LReservations);
+            TabPrenotazioni.FillTableReservations(LReservations);
             InterfacciaDiPrenotazione();
         }
     }
@@ -130,7 +130,7 @@ public class BookingService extends Application {
     private void InterfacciaDiPrenotazione()
     {
        
-        TabAuleDisp= new TabellaAuleDisponibili(WindowHeight * 10 / 20);
+        TabAuleDisp= new TableAvailableRooms(WindowHeight * 10 / 20);
         
         DPGiorno=new DatePicker();
         DPGiorno.setShowWeekNumbers(false);
@@ -196,7 +196,7 @@ public class BookingService extends Application {
         DateFormat dateFormat2= new SimpleDateFormat("HH:mm:ss");
         LocalDate DataSelezionata=DPGiorno.getValue();
         List<Room> LAvailableRoom= DBM.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
-        TabAuleDisp.RiempiTabellaAuleDisponibili(LAvailableRoom);
+        TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
         if(pcarray != null){
             map.getChildren().removeAll(pcarray);
             pcarray = null;
@@ -215,7 +215,7 @@ public class BookingService extends Application {
         DBM.DeleteReservation(username,room,PCnumber,date,hour);
         /* *************************************************************** */
         ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-        TabPrenotazioni.RiempiTabellaReservation(LReservations);
+        TabPrenotazioni.FillTableReservations(LReservations);
         TabPrenotazioni.relaseSelection();
         /* *************************************************************** */
         
@@ -266,7 +266,7 @@ public class BookingService extends Application {
         
             //Up the reservation table
             ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-            TabPrenotazioni.RiempiTabellaReservation(LReservations);
+            TabPrenotazioni.FillTableReservations(LReservations);
         }
         else
         {
