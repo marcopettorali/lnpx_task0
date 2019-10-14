@@ -21,6 +21,8 @@ import javafx.stage.*;
 public class BookingService extends Application {
     private TextField TFUsername;
     private PasswordField TFPassword;
+    private TextField TFPasswordVisible;
+    private CheckBox SHPassword;
     private Text TxUsername;
     private Text TxPassword;
     private Group GruppoElementi;
@@ -66,6 +68,20 @@ public class BookingService extends Application {
                TFPassword=new PasswordField();
                TFPassword.setPromptText("Your password");
                //-----------D--------//
+               // text field to show password as unmasked
+               TFPasswordVisible = new TextField();
+               TFPasswordVisible.setManaged(false);
+               TFPasswordVisible.setVisible(false);
+               SHPassword = new CheckBox("Show/Hide Password");
+               
+               TFPasswordVisible.managedProperty().bind(SHPassword.selectedProperty());
+               TFPasswordVisible.visibleProperty().bind(SHPassword.selectedProperty());
+               
+               TFPassword.managedProperty().bind(SHPassword.selectedProperty().not());
+               TFPassword.visibleProperty().bind(SHPassword.selectedProperty().not());
+               
+               TFPasswordVisible.textProperty().bindBidirectional(TFPassword.textProperty());
+               
                TxUsername = new Text("Username:");
                TxPassword = new Text("Password:");
                //--------------------//
@@ -74,7 +90,7 @@ public class BookingService extends Application {
                
                VBox vb=new VBox(10);
                vb.setAlignment(Pos.CENTER);
-               vb.getChildren().addAll(TxUsername,TFUsername,TxPassword,TFPassword,BTNLogin); 
+               vb.getChildren().addAll(TxUsername,TFUsername,TxPassword,TFPassword,TFPasswordVisible,SHPassword,BTNLogin); 
                GruppoElementi=new Group(vb);
                
                scene= new Scene(GruppoElementi);
