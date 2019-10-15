@@ -237,7 +237,7 @@ public class BookingService extends Application {
             String hour=TabPrenotazioni.getSelected().getHour();
             DBManager.DeleteReservation(username,room,PCnumber,date,hour);
             System.out.println(DataSelezionata + "  " + date);
-            if(date.compareTo(DataSelezionata.format(formatter))==0)
+            if((DataSelezionata!=null)&&(date.compareTo(DataSelezionata.format(formatter))==0))
             {
                 List<Room> LAvailableRoom=DBManager.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
                 TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
