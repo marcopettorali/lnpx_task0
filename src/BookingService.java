@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 
@@ -25,7 +26,7 @@ public class BookingService extends Application {
     private CheckBox SHPassword;
     private Text TxUsername;
     private Text TxPassword;
-    private TextField TxMessaggiErrore;
+    private Label TxMessaggiErrore;
     private Group GruppoElementi;
     private Scene scene;
     private DatePicker DPGiorno; //02
@@ -39,7 +40,6 @@ public class BookingService extends Application {
     private final Pane map = new Pane();
     PCIcon[] pcarray = null; 
     //------------------------------------//
-    private DBManager DBM;
     private ComboBox CBOrari; 
     private String OrarioScelto;
     private User ActualUser;
@@ -53,7 +53,6 @@ public class BookingService extends Application {
     
     @Override
     public void start(Stage primaryStage){ 
-               DBM=new DBManager();
                login();
                //-----------D---------//
                primaryStage.setHeight(WindowHeight);
@@ -71,9 +70,9 @@ public class BookingService extends Application {
     */
     private void login()
     {
-               TxMessaggiErrore=new TextField("");
-               TxMessaggiErrore.setStyle("-fx-text-inner-color: red; -fx-border: 3px solid #555; -fx-border-color: red;"); 
-               TxMessaggiErrore.setPromptText("");
+               TxMessaggiErrore=new Label("");
+               TxMessaggiErrore.setTextFill(Color.RED);
+               TxMessaggiErrore.setAlignment(Pos.CENTER);
                TFUsername=new TextField("");          
                TFUsername.setPromptText("Your Username");
                TFPassword=new PasswordField();
@@ -121,10 +120,10 @@ public class BookingService extends Application {
         username = TFUsername.getText();
         String password=TFPassword.getText();
        
-        if(DBM.checkLogin(username,password))   
+        if(DBManager.checkLogin(username,password))   
         {
             TabPrenotazioni=new TableReservations();
-            ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+            ArrayList<Reservation> LReservations = DBManager.loadUserReservations(username);
             TabPrenotazioni.FillTableReservations(LReservations);
             InterfacciaDiPrenotazione();
         }
@@ -139,12 +138,20 @@ public class BookingService extends Application {
     */
     private void InterfacciaDiPrenotazione()
     {
-        TxMessaggiErrore.clear();
+        TxMessaggiErrore.setText("");
         TabAuleDisp= new TableAvailableRooms(WindowHeight * 10 / 20);
-        TxMessaggiErrore.setStyle("-fx-text-inner-color: red; -fx-border: 3px solid #555; -fx-border-color: red;"); 
         DPGiorno=new DatePicker();
         DPGiorno.setShowWeekNumbers(false);
         DPGiorno.setMaxWidth(150);   
+        DPGiorno.setDayCellFactory(picker -> new DateCell() {
+        @Override
+        public void updateItem(LocalDate date, boolean empty) {
+            super.updateItem(date, empty);
+            LocalDate today = LocalDate.now();
+
+            setDisable(empty || date.compareTo(today) < 0 );
+        }
+    });
         ObservableList<String> comboItems = FXCollections.observableArrayList(
             "8:30:00","9:30:00","10:30:00","11:30:00","12:30:00","13:30:00"
             );
@@ -205,7 +212,7 @@ public class BookingService extends Application {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateFormat dateFormat2= new SimpleDateFormat("HH:mm:ss");
         DataSelezionata=DPGiorno.getValue();
-        List<Room> LAvailableRoom= DBM.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
+        List<Room> LAvailableRoom= DBManager.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
         TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
         if(pcarray != null){
             map.getChildren().removeAll(pcarray);
@@ -218,7 +225,7 @@ public class BookingService extends Application {
     */
     private void AnnullaPrenotazione()
     {
-        TxMessaggiErrore.clear();
+        TxMessaggiErrore.setText("");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         Reservation Res=TabPrenotazioni.getSelected();
         if(Res!=null)
@@ -228,15 +235,15 @@ public class BookingService extends Application {
             int PCnumber=Integer.parseInt(TabPrenotazioni.getSelected().getPCnumber());
             String date=TabPrenotazioni.getSelected().getDate();
             String hour=TabPrenotazioni.getSelected().getHour();
-            DBM.DeleteReservation(username,room,PCnumber,date,hour);
+            DBManager.DeleteReservation(username,room,PCnumber,date,hour);
             System.out.println(DataSelezionata + "  " + date);
             if(date.compareTo(DataSelezionata.format(formatter))==0)
             {
-                List<Room> LAvailableRoom= DBM.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
+                List<Room> LAvailableRoom=DBManager.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
                 TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
             }
             /* *************************************************************** */
-            ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+            ArrayList<Reservation> LReservations = DBManager.loadUserReservations(username);
             TabPrenotazioni.FillTableReservations(LReservations);
             TabPrenotazioni.relaseSelection();
             /* *************************************************************** */
@@ -253,7 +260,7 @@ public class BookingService extends Application {
     */
     private void BookPC()
     {
-        TxMessaggiErrore.clear();
+        TxMessaggiErrore.setText("");
         if(pcarray != null){
             map.getChildren().removeAll(pcarray);
             pcarray = null;
@@ -268,13 +275,13 @@ public class BookingService extends Application {
             int index= TabAuleDisp.gettb().getSelectionModel().getFocusedIndex();
             TabAuleDisp.relaseSelection();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            List <PC> pcavaiablelist = DBM.LoadAvailablePC(roomName,DPGiorno.getValue().format(formatter),OrarioScelto);
+            List <PC> pcavaiablelist = DBManager.LoadAvailablePC(roomName,DPGiorno.getValue().format(formatter),OrarioScelto);
             if(!pcavaiablelist.isEmpty())
             {
                 int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
-                if(DBM.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto))
+                if(DBManager.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto))
                 {
-                    TxMessaggiErrore.clear();
+                    TxMessaggiErrore.setText("");
                     /* ---- R --- Modificare solo la riga della tabella -- */
                     System.out.println(index);
                     SelectedRoom.setAvailablePCs(AvailablePC - 1);
@@ -285,7 +292,7 @@ public class BookingService extends Application {
                     map.getChildren().addAll(pcarray);
         
                     //Up the reservation table
-                    ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+                    ArrayList<Reservation> LReservations = DBManager.loadUserReservations(username);
                     TabPrenotazioni.FillTableReservations(LReservations);
                 }
                 else
