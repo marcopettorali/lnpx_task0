@@ -49,6 +49,7 @@ public class BookingService extends Application {
     }
     private Text TxReservations;
     private Text TxRooms;
+    private LocalDate DataSelezionata;
     
     @Override
     public void start(Stage primaryStage){ 
@@ -203,7 +204,7 @@ public class BookingService extends Application {
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateFormat dateFormat2= new SimpleDateFormat("HH:mm:ss");
-        LocalDate DataSelezionata=DPGiorno.getValue();
+        DataSelezionata=DPGiorno.getValue();
         List<Room> LAvailableRoom= DBM.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
         TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
         if(pcarray != null){
@@ -217,17 +218,33 @@ public class BookingService extends Application {
     */
     private void AnnullaPrenotazione()
     {
-        String room=TabPrenotazioni.getSelected().getRoom();
-        int PCnumber=Integer.parseInt(TabPrenotazioni.getSelected().getPCnumber());
-        String date=TabPrenotazioni.getSelected().getDate();
-        String hour=TabPrenotazioni.getSelected().getHour();
-        DBM.DeleteReservation(username,room,PCnumber,date,hour);
-        /* *************************************************************** */
-        ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-        TabPrenotazioni.FillTableReservations(LReservations);
-        TabPrenotazioni.relaseSelection();
-        /* *************************************************************** */
-        
+        TxMessaggiErrore.clear();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Reservation Res=TabPrenotazioni.getSelected();
+        if(Res!=null)
+        {
+            
+            String room=TabPrenotazioni.getSelected().getRoom();
+            int PCnumber=Integer.parseInt(TabPrenotazioni.getSelected().getPCnumber());
+            String date=TabPrenotazioni.getSelected().getDate();
+            String hour=TabPrenotazioni.getSelected().getHour();
+            DBM.DeleteReservation(username,room,PCnumber,date,hour);
+            System.out.println(DataSelezionata + "  " + date);
+            if(date.compareTo(DataSelezionata.format(formatter))==0)
+            {
+                List<Room> LAvailableRoom= DBM.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
+                TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
+            }
+            /* *************************************************************** */
+            ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+            TabPrenotazioni.FillTableReservations(LReservations);
+            TabPrenotazioni.relaseSelection();
+            /* *************************************************************** */
+        }
+        else
+        {
+            TxMessaggiErrore.setText("Choose one reservation");
+        }
     }
     
     /* Funzione chiamata da InterfacciaDiPrenotazione() al click di Button BTNReserve
@@ -236,62 +253,56 @@ public class BookingService extends Application {
     */
     private void BookPC()
     {
-        /*ReservePC()*/
-        /*LoadAvailablePCs()*/
-        //Al posto del 5 e del 20 vanno messi il numero di righe e la capacità delle aule da recuperare nel DB
+        TxMessaggiErrore.clear();
         if(pcarray != null){
             map.getChildren().removeAll(pcarray);
             pcarray = null;
         }
         
-        String roomName = TabAuleDisp.getSelected().getRoomName();
-        int roomCapacity = TabAuleDisp.getSelected().getCapacity();
-        int rowNumber = TabAuleDisp.getSelected().getRowNumber();
-        int AvailablePC= TabAuleDisp.getSelected().getAvailablePCs();
-        
-        /* Prendo la stanza e l'indice selezionato per andare a modificare l'ObList*/
         Room SelectedRoom=TabAuleDisp.getSelected();
-        int index= TabAuleDisp.gettb().getSelectionModel().getFocusedIndex();
-        
-        TabAuleDisp.relaseSelection();
-       
-        
-        
-        
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        List <PC> pcavaiablelist = DBM.LoadAvailablePC(roomName,DPGiorno.getValue().format(formatter),OrarioScelto);
-        if(!pcavaiablelist.isEmpty())
-        {
-            int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
-            if(DBM.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto))
+        if(SelectedRoom != null){
+            String roomName = SelectedRoom.getRoomName();
+            int roomCapacity = SelectedRoom.getCapacity();
+            int rowNumber = SelectedRoom.getRowNumber();
+            int AvailablePC= SelectedRoom.getAvailablePCs();
+            int index= TabAuleDisp.gettb().getSelectionModel().getFocusedIndex();
+            TabAuleDisp.relaseSelection();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            List <PC> pcavaiablelist = DBM.LoadAvailablePC(roomName,DPGiorno.getValue().format(formatter),OrarioScelto);
+            if(!pcavaiablelist.isEmpty())
             {
-                TxMessaggiErrore.clear();
-                 /* ---- R --- Modificare solo la riga della tabella -- */
-                System.out.println(index);
-                SelectedRoom.setAvailablePCs(AvailablePC - 1);
-                TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
-                 /* ---------------------------------------------------- */
+                int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
+                if(DBM.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto))
+                {
+                    TxMessaggiErrore.clear();
+                    /* ---- R --- Modificare solo la riga della tabella -- */
+                    System.out.println(index);
+                    SelectedRoom.setAvailablePCs(AvailablePC - 1);
+                    TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
+                    /* ---------------------------------------------------- */
+                    pcarray = drawmap(rowNumber,roomCapacity,indexPcSelected);
             
-                //int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
-                pcarray = drawmap(rowNumber,roomCapacity,indexPcSelected);
-            
-                map.getChildren().addAll(pcarray);
+                    map.getChildren().addAll(pcarray);
         
-                //Up the reservation table
-                ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-                TabPrenotazioni.FillTableReservations(LReservations);
+                    //Up the reservation table
+                    ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+                    TabPrenotazioni.FillTableReservations(LReservations);
+                }
+                else
+                {
+                    TxMessaggiErrore.setText("NOT ALLOWED: Only one PC");
+                }
             }
             else
             {
-                TxMessaggiErrore.setText("NOT ALLOWED: Only one PC");
+                /* Nessuna Postazione Disponibile */
+                System.out.println(index);
+                SelectedRoom.setAvailablePCs(0);
+                TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
             }
         }
-        else
-        {
-            /* Nessuna Postazione Disponibile */
-            System.out.println(index);
-            SelectedRoom.setAvailablePCs(0);
-            TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
+        else{
+            TxMessaggiErrore.setText("Choose one room");
         }
     }
     
@@ -303,9 +314,9 @@ public class BookingService extends Application {
         if((Capacity/RowNumber) > RowNumber)
             Max = Capacity/RowNumber;
         double MapSize = WindowWidth/2;
-        if(MapSize > (WindowHeight * 8 / 20))
-            MapSize = WindowHeight * 8 / 20;
-        y_offset = (WindowHeight * 8 / 20) - MapSize;
+        if(MapSize > (WindowHeight * 5 / 20))
+            MapSize = WindowHeight * 5 / 20;
+        y_offset = (WindowHeight * 5 / 20) - MapSize;
         x_offset = (WindowWidth/2) - MapSize;
         double Dim = MapSize  / (2*Max);
         for(int i=0 ; i < Capacity ; i++){
