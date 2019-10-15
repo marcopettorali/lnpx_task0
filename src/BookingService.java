@@ -2,6 +2,7 @@
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -147,13 +148,13 @@ public class BookingService extends Application {
         @Override
         public void updateItem(LocalDate date, boolean empty) {
             super.updateItem(date, empty);
-            LocalDate today = LocalDate.now().plusDays(1) ;
+            LocalDate today = LocalDate.now() ;
 
             setDisable(empty || date.compareTo(today) < 0 );
         }
     });
         ObservableList<String> comboItems = FXCollections.observableArrayList(
-            "8:30:00","9:30:00","10:30:00","11:30:00","12:30:00","13:30:00"
+            "08:30:00","09:30:00","10:30:00","11:30:00","12:30:00","13:30:00"
             );
         CBOrari = new ComboBox(comboItems);
         CBOrari.setOnAction((Event ev) -> {
@@ -211,16 +212,26 @@ public class BookingService extends Application {
     {
         TxMessaggiErrore.setText("");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateFormat dateFormat2= new SimpleDateFormat("HH:mm:ss");
         DataSelezionata=DPGiorno.getValue();
+        DateTimeFormatter dtt= DateTimeFormatter.ofPattern("HH:mm:ss");
+       
         if((DataSelezionata!=null)&&(OrarioScelto!=null))
-        {
-            List<Room> LAvailableRoom= DBManager.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
-            TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
-            if(pcarray != null){
-                map.getChildren().removeAll(pcarray);
-                pcarray = null;
-            }   
+        { 
+            LocalTime l=LocalTime.parse(OrarioScelto);
+            if(DataSelezionata.isEqual(LocalDate.now())&&(l.isBefore(LocalTime.now())))
+            {
+                TxMessaggiErrore.setText("This program is not able to go back in time");
+               
+            }
+            else
+            {
+                List<Room> LAvailableRoom= DBManager.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
+                TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
+                if(pcarray != null){
+                    map.getChildren().removeAll(pcarray);
+                    pcarray = null;
+                }
+            }
         }
         else
         {
