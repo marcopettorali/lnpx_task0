@@ -71,6 +71,11 @@ public class DBManager {
             int counter = 0;
             while (rs.next()) {
                 counter++;
+                User.username = rs.getString("Username");
+                User.password = rs.getString("Password");
+                User.firstName = rs.getString("FirstName");
+                User.lastName = rs.getString("LastName");
+                User.matriculationNumber = rs.getInt("MatriculationNumber");
             }
             if (counter == 1) {
                 return true;
