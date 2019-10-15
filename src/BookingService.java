@@ -303,15 +303,15 @@ public class BookingService extends Application {
         if((Capacity/RowNumber) > RowNumber)
             Max = Capacity/RowNumber;
         double MapSize = WindowWidth/2;
-        if(MapSize > (WindowHeight * 9 / 20))
-            MapSize = WindowHeight * 9 / 20;
-        y_offset = (WindowHeight * 9 / 20) - MapSize;
+        if(MapSize > (WindowHeight * 8 / 20))
+            MapSize = WindowHeight * 8 / 20;
+        y_offset = (WindowHeight * 8 / 20) - MapSize;
         x_offset = (WindowWidth/2) - MapSize;
         double Dim = MapSize  / (2*Max);
         for(int i=0 ; i < Capacity ; i++){
             PCIcon NewPc = new PCIcon(i/RowNumber ,i%RowNumber,Dim, i%RowNumber * (Capacity/RowNumber) + i/RowNumber + 1 ,x_offset,y_offset);
             pcarray[i] = NewPc;
-            if(i == (selectedIndex-1)){
+            if((i%RowNumber * (Capacity/RowNumber) + i/RowNumber + 1) == selectedIndex){
                 NewPc.FillYellow();
             }
         }
