@@ -25,6 +25,7 @@ public class BookingService extends Application {
     private CheckBox SHPassword;
     private Text TxUsername;
     private Text TxPassword;
+    private TextField TxMessaggiErrore;
     private Group GruppoElementi;
     private Scene scene;
     private DatePicker DPGiorno; //02
@@ -69,6 +70,9 @@ public class BookingService extends Application {
     */
     private void login()
     {
+               TxMessaggiErrore=new TextField("");
+               TxMessaggiErrore.setStyle("-fx-text-inner-color: red; -fx-border: 3px solid #555; -fx-border-color: red;"); 
+               TxMessaggiErrore.setPromptText("");
                TFUsername=new TextField("");          
                TFUsername.setPromptText("Your Username");
                TFPassword=new PasswordField();
@@ -97,10 +101,11 @@ public class BookingService extends Application {
                VBox vb=new VBox(10);
                TFUsername.setMaxWidth(WindowWidth * 3 / 10);
                TFPassword.setMaxWidth(WindowWidth * 3 / 10);
+               TxMessaggiErrore.setMaxWidth(WindowWidth * 3/10);
                TFPasswordVisible.setMaxWidth(WindowWidth * 3 / 10);
                vb.setPrefSize(WindowWidth, WindowHeight);
                vb.setAlignment(Pos.CENTER);
-               vb.getChildren().addAll(TxUsername,TFUsername,TxPassword,TFPassword,TFPasswordVisible,SHPassword,BTNLogin); 
+               vb.getChildren().addAll(TxUsername,TFUsername,TxPassword,TFPassword,TFPasswordVisible,SHPassword,BTNLogin,TxMessaggiErrore); 
                GruppoElementi=new Group(vb);
                
                scene= new Scene(GruppoElementi);
@@ -122,6 +127,10 @@ public class BookingService extends Application {
             TabPrenotazioni.FillTableReservations(LReservations);
             InterfacciaDiPrenotazione();
         }
+        else
+        {
+            TxMessaggiErrore.setText("Wrong Username or Password");
+        }
     }
     
     /* Questa funzione è invocata da VerificaCredenziali() 
@@ -129,9 +138,9 @@ public class BookingService extends Application {
     */
     private void InterfacciaDiPrenotazione()
     {
-       
+        TxMessaggiErrore.clear();
         TabAuleDisp= new TableAvailableRooms(WindowHeight * 10 / 20);
-        
+        TxMessaggiErrore.setStyle("-fx-text-inner-color: red; -fx-border: 3px solid #555; -fx-border-color: red;"); 
         DPGiorno=new DatePicker();
         DPGiorno.setShowWeekNumbers(false);
         DPGiorno.setMaxWidth(150);   
@@ -161,7 +170,7 @@ public class BookingService extends Application {
         
         
         VBAule= new VBox(5);
-        VBAule.getChildren().addAll(TxRooms,TabAuleDisp.gettb(),BTNReserve,map);
+        VBAule.getChildren().addAll(TxRooms,TabAuleDisp.gettb(),BTNReserve,map,TxMessaggiErrore);
         BTNReserve.setOnAction((ActionEvent ev)->{BookPC();});
         //------------------D-----------//
         SplitPane sp = new SplitPane();
@@ -253,20 +262,29 @@ public class BookingService extends Application {
         List <PC> pcavaiablelist = DBM.LoadAvailablePC(roomName,DPGiorno.getValue().format(formatter),OrarioScelto);
         if(!pcavaiablelist.isEmpty())
         {
-            /* ---- R --- Modificare solo la riga della tabella -- */
-            System.out.println(index);
-            SelectedRoom.setAvailablePCs(AvailablePC - 1);
-            TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
-            /* ---------------------------------------------------- */
-            
             int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
-            pcarray = drawmap(rowNumber,roomCapacity,indexPcSelected);
-            DBM.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto);
-            map.getChildren().addAll(pcarray);
+            if(DBM.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto))
+            {
+                TxMessaggiErrore.clear();
+                 /* ---- R --- Modificare solo la riga della tabella -- */
+                System.out.println(index);
+                SelectedRoom.setAvailablePCs(AvailablePC - 1);
+                TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
+                 /* ---------------------------------------------------- */
+            
+                //int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
+                pcarray = drawmap(rowNumber,roomCapacity,indexPcSelected);
+            
+                map.getChildren().addAll(pcarray);
         
-            //Up the reservation table
-            ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
-            TabPrenotazioni.FillTableReservations(LReservations);
+                //Up the reservation table
+                ArrayList<Reservation> LReservations = DBM.loadUserReservations(username);
+                TabPrenotazioni.FillTableReservations(LReservations);
+            }
+            else
+            {
+                TxMessaggiErrore.setText("NOT ALLOWED: Only one PC");
+            }
         }
         else
         {
