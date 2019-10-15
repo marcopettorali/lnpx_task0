@@ -1,15 +1,10 @@
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import javafx.application.Application;
 import javafx.collections.*;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
+import javafx.event.*;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -33,7 +28,6 @@ public class BookingService extends Application {
     private DatePicker DPGiorno; //02
     private TableReservations TabPrenotazioni;
     private TableAvailableRooms TabAuleDisp;
-    private String username;
     private VBox VBAule;
     //-------------------D----------------//
     public static final int WindowHeight = 600;
@@ -118,7 +112,7 @@ public class BookingService extends Application {
     */
     private void VerificaCredenziali()
     {
-        username = TFUsername.getText();
+        String username = TFUsername.getText();
         String password=TFPassword.getText();
        
         if(DBManager.checkLogin(username,password))   
@@ -154,7 +148,7 @@ public class BookingService extends Application {
         }
     });
         ObservableList<String> comboItems = FXCollections.observableArrayList(
-            "08:30:00","09:30:00","10:30:00","11:30:00","12:30:00","13:30:00"
+            "08:30:00","09:30:00","10:30:00","11:30:00","12:30:00","13:30:00","14:30:00","15:30:00","16:30:00","17:30:00"
             );
         CBOrari = new ComboBox(comboItems);
         CBOrari.setOnAction((Event ev) -> {
@@ -254,7 +248,7 @@ public class BookingService extends Application {
             int PCnumber=Integer.parseInt(TabPrenotazioni.getSelected().getPCnumber());
             String date=TabPrenotazioni.getSelected().getDate();
             String hour=TabPrenotazioni.getSelected().getHour();
-            DBManager.DeleteReservation(username,room,PCnumber,date,hour);
+            DBManager.DeleteReservation(User.username,room,PCnumber,date,hour);
             System.out.println(DataSelezionata + "  " + date);
             if((DataSelezionata!=null)&&(date.compareTo(DataSelezionata.format(formatter))==0))
             {
@@ -262,7 +256,7 @@ public class BookingService extends Application {
                 TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
             }
             /* *************************************************************** */
-            ArrayList<Reservation> LReservations = DBManager.loadUserReservations(username);
+            ArrayList<Reservation> LReservations = DBManager.loadUserReservations(User.username);
             TabPrenotazioni.FillTableReservations(LReservations);
             TabPrenotazioni.relaseSelection();
             /* *************************************************************** */
@@ -298,7 +292,7 @@ public class BookingService extends Application {
             if(!pcavaiablelist.isEmpty())
             {
                 int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
-                if(DBManager.ReservePC(username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto))
+                if(DBManager.ReservePC(User.username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto))
                 {
                     TxMessaggiErrore.setText("");
                     /* ---- R --- Modificare solo la riga della tabella -- */
@@ -311,7 +305,7 @@ public class BookingService extends Application {
                     map.getChildren().addAll(pcarray);
         
                     //Up the reservation table
-                    ArrayList<Reservation> LReservations = DBManager.loadUserReservations(username);
+                    ArrayList<Reservation> LReservations = DBManager.loadUserReservations(User.username);
                     TabPrenotazioni.FillTableReservations(LReservations);
                 }
                 else
