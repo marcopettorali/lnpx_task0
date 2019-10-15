@@ -209,14 +209,22 @@ public class BookingService extends Application {
     */
     private void CaricaAule()
     {
+        TxMessaggiErrore.setText("");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateFormat dateFormat2= new SimpleDateFormat("HH:mm:ss");
         DataSelezionata=DPGiorno.getValue();
-        List<Room> LAvailableRoom= DBManager.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
-        TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
-        if(pcarray != null){
-            map.getChildren().removeAll(pcarray);
-            pcarray = null;
+        if((DataSelezionata!=null)&&(OrarioScelto!=null))
+        {
+            List<Room> LAvailableRoom= DBManager.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
+            TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
+            if(pcarray != null){
+                map.getChildren().removeAll(pcarray);
+                pcarray = null;
+            }   
+        }
+        else
+        {
+          TxMessaggiErrore.setText("Select Date and Hour");
         }
     }
     
