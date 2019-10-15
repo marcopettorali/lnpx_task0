@@ -16,7 +16,7 @@ public class DBManager {
 
     private static final String checkLoginQuery = "SELECT * FROM user WHERE Username = ? AND Password = ?";
 
-    private static final String loadUserReservationsQuery = "SELECT * FROM booking WHERE Username = ? AND Date > ?";
+    private static final String loadUserReservationsQuery = "SELECT * FROM booking WHERE Username = ? AND Date >= ?";
 
     private static final String queryControlReservations = "select count(*) as NumPrenotazioni "
                                                          + "from booking b "
