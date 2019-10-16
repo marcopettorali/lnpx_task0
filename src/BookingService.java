@@ -23,12 +23,12 @@ public class BookingService extends Application {
     private Text TxUsername;
     private Text TxPassword;
     private Label TxMessaggiErrore;
-    private Group GruppoElementi;
+    private Group ElementsGroup;
     private Scene scene;
-    private DatePicker DPGiorno; //02
-    private TableReservations TabPrenotazioni;
-    private TableAvailableRooms TabAuleDisp;
-    private VBox VBAule;
+    private DatePicker DPDay; //02
+    private TableReservations TabReservations;
+    private TableAvailableRooms TabAvailableRooms;
+    private VBox VBRooms;
     //-------------------D----------------//
     public static final int WindowHeight = 600;
     public static final int WindowWidth = 1000;
@@ -36,15 +36,14 @@ public class BookingService extends Application {
     PCIcon[] pcarray = null; 
     //------------------------------------//
     private ComboBox CBOrari; 
-    private String OrarioScelto;
-    private User ActualUser;
+    private String SelectedHour;
     
     public static void main(String[] args){
     Application.launch(BookingService.class, args);
     }
     private Text TxReservations;
     private Text TxRooms;
-    private LocalDate DataSelezionata;
+    private LocalDate SelectedDate;
     
     @Override
     public void start(Stage primaryStage){ 
@@ -58,11 +57,11 @@ public class BookingService extends Application {
                primaryStage.setResizable(false);
             }
     
-    /* Questa funzione viene chiamata all'apertura della pagina 
-        1- Inizializzai i TextFiled (Username e Password ), le Label e il Button Di LOGIN necessari al Login
-        2- il BTNLogin invoca al click la funzione di autenticazione VerificaCredenziali() che andrà a verificare
-            se l'utente è effettivamente registrato nel Database
-    */
+    /**
+     * This function is executed at the openining of the UI
+       * 1- Initializes all Textfields, Labels and buttons needed for the Login procedure
+       * 2- BTNLogin call on click() the authentication's function CheckLoginInformations()
+     */
     private void login()
     {
                TxMessaggiErrore=new Label("");
@@ -91,7 +90,7 @@ public class BookingService extends Application {
                TxPassword = new Text("Password:");
                //--------------------//
                Button BTNLogin = new Button("LOGIN");
-               BTNLogin.setOnAction((ActionEvent ev)->{VerificaCredenziali();});
+               BTNLogin.setOnAction((ActionEvent ev)->{CheckLoginInformations();});
                
                VBox vb=new VBox(10);
                TFUsername.setMaxWidth(WindowWidth * 3 / 10);
@@ -101,44 +100,49 @@ public class BookingService extends Application {
                vb.setPrefSize(WindowWidth, WindowHeight);
                vb.setAlignment(Pos.CENTER);
                vb.getChildren().addAll(TxUsername,TFUsername,TxPassword,TFPassword,TFPasswordVisible,SHPassword,BTNLogin,TxMessaggiErrore); 
-               GruppoElementi=new Group(vb);
+               ElementsGroup=new Group(vb);
                
-               scene= new Scene(GruppoElementi);
+               scene= new Scene(ElementsGroup);
     }
     
-    /* Questa funzione è chiamata dal Button BTNLogin è deve verificare se l'utente è 
-       iscritto al sistema. Se l'utente è iscritto viene caricata la nuova interfaccia
-        chiamdo InterfacciaDiPrenotazione();
-    */
-    private void VerificaCredenziali()
+
+    /**
+     * This function is called by the button BTNLogin
+        * 1- Check if the user exist in the DB
+        * 2- IF the user exist in the DB CheckLoginInformations() fills the Table that contain
+        *    all the valid Reservation of the user and calls the function ReservationInterface()  
+        *    ELSE CheckLoginInformations() print an error message        
+     */
+    private void CheckLoginInformations()
     {
         String username = TFUsername.getText();
         String password=TFPassword.getText();
        
         if(DBManager.checkLogin(username,password))   
         {
-            TabPrenotazioni=new TableReservations();
+            TabReservations=new TableReservations();
             ArrayList<Reservation> LReservations = DBManager.loadUserReservations(username);
-            TabPrenotazioni.FillTableReservations(LReservations);
-            InterfacciaDiPrenotazione();
+            TabReservations.FillTableReservations(LReservations);
+            ReservationInterface();
         }
         else
         {
             TxMessaggiErrore.setText("Wrong Username or Password");
         }
     }
-    
-    /* Questa funzione è invocata da VerificaCredenziali() 
-        - Crea l'interfaccia principale
-    */
-    private void InterfacciaDiPrenotazione()
+
+    /**
+     * This Function is called by CheckLoginInformations()
+     *  1- Initializes the Reservation Interface 
+     */
+    private void ReservationInterface()
     {
         TxMessaggiErrore.setText("");
-        TabAuleDisp= new TableAvailableRooms(WindowHeight * 10 / 20);
-        DPGiorno=new DatePicker();
-        DPGiorno.setShowWeekNumbers(false);
-        DPGiorno.setMaxWidth(150);   
-        DPGiorno.setDayCellFactory(picker -> new DateCell() {
+        TabAvailableRooms= new TableAvailableRooms(WindowHeight * 10 / 20);
+        DPDay=new DatePicker();
+        DPDay.setShowWeekNumbers(false);
+        DPDay.setMaxWidth(150);   
+        DPDay.setDayCellFactory(picker -> new DateCell() {
         @Override
         public void updateItem(LocalDate date, boolean empty) {
             super.updateItem(date, empty);
@@ -152,28 +156,28 @@ public class BookingService extends Application {
             );
         CBOrari = new ComboBox(comboItems);
         CBOrari.setOnAction((Event ev) -> {
-        OrarioScelto =  CBOrari.getSelectionModel().getSelectedItem().toString();    
+        SelectedHour =  CBOrari.getSelectionModel().getSelectedItem().toString();    
         });
         
         Button BTNFind = new Button("FIND");
-        BTNFind.setOnAction((ActionEvent ev)->{CaricaAule();});
+        BTNFind.setOnAction((ActionEvent ev)->{LoadRooms();});
         Button BTNDelete = new Button("DELETE");
-        BTNDelete.setOnAction((ActionEvent ev)->{AnnullaPrenotazione();});
+        BTNDelete.setOnAction((ActionEvent ev)->{DeleteReservation();});
                 
         HBox HBCerca= new HBox(10);
         HBCerca.getChildren().addAll(CBOrari,BTNFind);
         TxReservations = new Text("Your Reservations");
         TxRooms = new Text("Available Rooms");
         VBox VBCerca= new VBox(5);
-        VBCerca.getChildren().addAll(DPGiorno,HBCerca,TxReservations,TabPrenotazioni.gettb(),BTNDelete);
+        VBCerca.getChildren().addAll(DPDay,HBCerca,TxReservations,TabReservations.gettb(),BTNDelete);
         Button BTNReserve=new Button("RESERVE");
         //-----------D--------//
         BTNReserve.setPrefHeight(WindowHeight * 1 / 20);
         //--------------------//
         
         
-        VBAule= new VBox(5);
-        VBAule.getChildren().addAll(TxRooms,TabAuleDisp.gettb(),BTNReserve,map,TxMessaggiErrore);
+        VBRooms= new VBox(5);
+        VBRooms.getChildren().addAll(TxRooms,TabAvailableRooms.gettb(),BTNReserve,map,TxMessaggiErrore);
         BTNReserve.setOnAction((ActionEvent ev)->{BookPC();});
         //------------------D-----------//
         SplitPane sp = new SplitPane();
@@ -183,44 +187,47 @@ public class BookingService extends Application {
         sp1.setPrefHeight(WindowHeight);
         sp1.setMaxWidth(WindowWidth/2);
         sp1.setMinWidth(WindowWidth/2);
-        sp2.getChildren().addAll(VBAule);
+        sp2.getChildren().addAll(VBRooms);
         sp2.setPrefHeight(WindowHeight);
         sp2.setMaxWidth(WindowWidth/2);
         sp2.setMinWidth(WindowWidth/2);
         sp.getItems().addAll(sp1,sp2);
         //HBox HBTot = new HBox(30);
-        //HBTot.getChildren().addAll(VBCerca,VBAule);
+        //HBTot.getChildren().addAll(VBCerca,VBRooms);
         
         //-----------------------------//
         
-        GruppoElementi.getChildren().removeAll(GruppoElementi.getChildren());
-        GruppoElementi.getChildren().addAll(sp);
+        ElementsGroup.getChildren().removeAll(ElementsGroup.getChildren());
+        ElementsGroup.getChildren().addAll(sp);
         
     }
     
-    /* Funzione chiamata da InterfacciaDiPrenotazione() al click di Button BTNFind
-       - Carica le aule disponibili per il giorno e l'orario selezionato
-       - Carica le Aule in una TableView 
-    */
-    private void CaricaAule()
+
+    /**
+     *  This function by the Button BTNFind (Initialized in ReservationInterface())
+     *  1- Load in the Table the available rooms for the day and hour selected
+     *  2- IF the selected day is the current day and the hour selected is before the
+     *      actual hour prints an error message
+     */
+    private void LoadRooms()
     {
         TxMessaggiErrore.setText("");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DataSelezionata=DPGiorno.getValue();
+        SelectedDate=DPDay.getValue();
         DateTimeFormatter dtt= DateTimeFormatter.ofPattern("HH:mm:ss");
        
-        if((DataSelezionata!=null)&&(OrarioScelto!=null))
+        if((SelectedDate!=null)&&(SelectedHour!=null))
         { 
-            LocalTime l=LocalTime.parse(OrarioScelto);
-            if(DataSelezionata.isEqual(LocalDate.now())&&(l.isBefore(LocalTime.now())))
+            LocalTime l=LocalTime.parse(SelectedHour);
+            if(SelectedDate.isEqual(LocalDate.now())&&(l.isBefore(LocalTime.now())))
             {
                 TxMessaggiErrore.setText("This program is not able to go back in time");
                
             }
             else
             {
-                List<Room> LAvailableRoom= DBManager.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
-                TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
+                List<Room> LAvailableRoom= DBManager.LoadRooms(SelectedDate.format(formatter),SelectedHour);
+                TabAvailableRooms.FillTableAvailableRooms(LAvailableRoom);
                 if(pcarray != null){
                     map.getChildren().removeAll(pcarray);
                     pcarray = null;
@@ -233,32 +240,37 @@ public class BookingService extends Application {
         }
     }
     
-    /* Funzione chiamata da InterfacciaDiPrenotazione() al click di Button BTNDelete
-       - Annulla una prenotazione fatta dall'utente 
-    */
-    private void AnnullaPrenotazione()
+
+    /**
+     * This function is called by Button BTNDelete (Initialized on ReservationInterface() 
+     *  1- Delete the selected reservation from the DB 
+     *  2- If the Reservation deleted belongs to the loaded Table that contains the Available Rooms
+     *      DeleteReservation() updates that table
+     */
+    
+    private void DeleteReservation()
     {
         TxMessaggiErrore.setText("");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        Reservation Res=TabPrenotazioni.getSelected();
+        Reservation Res=TabReservations.getSelected();
         if(Res!=null)
         {
             
-            String room=TabPrenotazioni.getSelected().getRoom();
-            int PCnumber=Integer.parseInt(TabPrenotazioni.getSelected().getPCnumber());
-            String date=TabPrenotazioni.getSelected().getDate();
-            String hour=TabPrenotazioni.getSelected().getHour();
+            String room=TabReservations.getSelected().getRoom();
+            int PCnumber=Integer.parseInt(TabReservations.getSelected().getPCnumber());
+            String date=TabReservations.getSelected().getDate();
+            String hour=TabReservations.getSelected().getHour();
             DBManager.DeleteReservation(User.username,room,PCnumber,date,hour);
-            System.out.println(DataSelezionata + "  " + date);
-            if((DataSelezionata!=null)&&(date.compareTo(DataSelezionata.format(formatter))==0))
+            System.out.println(SelectedDate + "  " + date);
+            if((SelectedDate!=null)&&(date.compareTo(SelectedDate.format(formatter))==0))
             {
-                List<Room> LAvailableRoom=DBManager.LoadRooms(DataSelezionata.format(formatter),OrarioScelto);
-                TabAuleDisp.FillTableAvailableRooms(LAvailableRoom);
+                List<Room> LAvailableRoom=DBManager.LoadRooms(SelectedDate.format(formatter),SelectedHour);
+                TabAvailableRooms.FillTableAvailableRooms(LAvailableRoom);
             }
             /* *************************************************************** */
             ArrayList<Reservation> LReservations = DBManager.loadUserReservations(User.username);
-            TabPrenotazioni.FillTableReservations(LReservations);
-            TabPrenotazioni.relaseSelection();
+            TabReservations.FillTableReservations(LReservations);
+            TabReservations.relaseSelection();
             /* *************************************************************** */
         }
         else
@@ -267,10 +279,14 @@ public class BookingService extends Application {
         }
     }
     
-    /* Funzione chiamata da InterfacciaDiPrenotazione() al click di Button BTNReserve
-        - Effettua una prenotazione
-        - Mostra la postazione prenotata 
-    */
+
+    /**
+     * This function is called by BTNReserve Initialized on ReservationInterface() 
+     *  1- Loads the available PCs from the DB 
+     *  2- If there is an available PC on the room selected and the user has not 
+     *      a reservation for that day an hour the system reserve the first available 
+     *      PC and updates the Table that contains the Reservations
+     */
     private void BookPC()
     {
         TxMessaggiErrore.setText("");
@@ -279,26 +295,26 @@ public class BookingService extends Application {
             pcarray = null;
         }
         
-        Room SelectedRoom=TabAuleDisp.getSelected();
+        Room SelectedRoom=TabAvailableRooms.getSelected();
         if(SelectedRoom != null){
             String roomName = SelectedRoom.getRoomName();
             int roomCapacity = SelectedRoom.getCapacity();
             int rowNumber = SelectedRoom.getRowNumber();
             int AvailablePC= SelectedRoom.getAvailablePCs();
-            int index= TabAuleDisp.gettb().getSelectionModel().getFocusedIndex();
-            TabAuleDisp.relaseSelection();
+            int index= TabAvailableRooms.gettb().getSelectionModel().getFocusedIndex();
+            TabAvailableRooms.relaseSelection();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            List <PC> pcavaiablelist = DBManager.LoadAvailablePC(roomName,DPGiorno.getValue().format(formatter),OrarioScelto);
+            List <PC> pcavaiablelist = DBManager.LoadAvailablePC(roomName,DPDay.getValue().format(formatter),SelectedHour);
             if(!pcavaiablelist.isEmpty())
             {
                 int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
-                if(DBManager.ReservePC(User.username,roomName,indexPcSelected,DPGiorno.getValue().format(formatter),OrarioScelto))
+                if(DBManager.ReservePC(User.username,roomName,indexPcSelected,DPDay.getValue().format(formatter),SelectedHour))
                 {
                     TxMessaggiErrore.setText("");
                     /* ---- R --- Modificare solo la riga della tabella -- */
                     System.out.println(index);
                     SelectedRoom.setAvailablePCs(AvailablePC - 1);
-                    TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
+                    TabAvailableRooms.updateRoomsInformation(index, SelectedRoom);
                     /* ---------------------------------------------------- */
                     pcarray = drawmap(rowNumber,roomCapacity,indexPcSelected);
             
@@ -306,7 +322,7 @@ public class BookingService extends Application {
         
                     //Up the reservation table
                     ArrayList<Reservation> LReservations = DBManager.loadUserReservations(User.username);
-                    TabPrenotazioni.FillTableReservations(LReservations);
+                    TabReservations.FillTableReservations(LReservations);
                 }
                 else
                 {
@@ -318,7 +334,7 @@ public class BookingService extends Application {
                 /* Nessuna Postazione Disponibile */
                 System.out.println(index);
                 SelectedRoom.setAvailablePCs(0);
-                TabAuleDisp.updateRoomsInformation(index, SelectedRoom);
+                TabAvailableRooms.updateRoomsInformation(index, SelectedRoom);
             }
         }
         else{
