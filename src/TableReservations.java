@@ -1,6 +1,5 @@
 
 import java.util.*;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
