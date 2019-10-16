@@ -13,7 +13,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 
-
+/**
+ * BookingService is the main class of the application.
+ * It displays the GUI and calls the methods for the event handlers
+ */
 
 public class BookingService extends Application {
     private TextField TFUsername;
@@ -30,7 +33,15 @@ public class BookingService extends Application {
     private TableAvailableRooms TabAuleDisp;
     private VBox VBAule;
     //-------------------D----------------//
+
+    /**
+     *
+     */
     public static final int WindowHeight = 600;
+
+    /**
+     *
+     */
     public static final int WindowWidth = 1000;
     private final Pane map = new Pane();
     PCIcon[] pcarray = null; 
@@ -39,6 +50,10 @@ public class BookingService extends Application {
     private String OrarioScelto;
     private User ActualUser;
     
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args){
     Application.launch(BookingService.class, args);
     }
