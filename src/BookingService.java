@@ -323,7 +323,7 @@ public class BookingService extends Application {
             if(!pcavaiablelist.isEmpty())
             {
                 int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
-                if(DBManager.ReservePC(User.username,roomName,indexPcSelected,DPDay.getValue().format(formatter),SelectedHour))
+                if(DBManager.reservePC(User.username,roomName,indexPcSelected,DPDay.getValue().format(formatter),SelectedHour))
                 {
                     TxMessaggiErrore.setText("");
                     /* ---- R --- Modificare solo la riga della tabella -- */
