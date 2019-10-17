@@ -125,10 +125,10 @@ CREATE TABLE IF NOT EXISTS `user` (
 --
 
 INSERT INTO `user` (`Username`, `Password`, `FirstName`, `LastName`, `MatriculationNumber`) VALUES
-('d.lorenzoni2', 'cicciocaputo', 'Dario', 'Lorenzoni', 546619),
-('m.pettorali', 'marcom', 'Marco', 'Pettorali', 555444),
-('r.nocerino', 'marcomerda', 'Raffaele', 'Nocerino', 530199),
-('r.xefraj', 'merdamarco', 'Riccardo', 'Xefraj', 598343);
+('d.lorenzoni2', 'd.lorenzoni2', 'Dario', 'Lorenzoni', 546619),
+('m.pettorali', 'm.pettorali', 'Marco', 'Pettorali', 555444),
+('r.nocerino', 'r.nocerino', 'Raffaele', 'Nocerino', 530199),
+('r.xefraj', 'r.xefraj', 'Riccardo', 'Xefraj', 598343);
 
 --
 -- Indexes for dumped tables
@@ -138,7 +138,7 @@ INSERT INTO `user` (`Username`, `Password`, `FirstName`, `LastName`, `Matriculat
 -- Indexes for table `booking`
 --
 ALTER TABLE `booking`
- ADD PRIMARY KEY (`Username`,`StartTime`,`Date`,`PCNumber`,`RoomName`), ADD KEY `PC Number_idx` (`PCNumber`), ADD KEY `Room Name_idx` (`RoomName`);
+ ADD PRIMARY KEY (`StartTime`,`Date`,`PCNumber`,`RoomName`), ADD KEY `PC Number_idx` (`PCNumber`), ADD KEY `Room Name_idx` (`RoomName`);
 
 --
 -- Indexes for table `pc`
