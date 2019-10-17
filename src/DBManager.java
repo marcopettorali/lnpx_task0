@@ -106,9 +106,9 @@ public class DBManager {
     }
 
     /**
-     * 
+     * loadUserReservations loads each reservation made by the user for the next days
      * @param username is the username of the user that logged in
-     * @return a list of all the reservations made by the user
+     * @return it returns a list of all the reservations made by the user
      */
     public static ArrayList<Reservation> loadUserReservations(String username) {
         try (
@@ -137,13 +137,13 @@ public class DBManager {
     }
 
     /**
-     * 
-     * @param user
-     * @param rn
-     * @param pcnumb
-     * @param D
-     * @param T
-     * @return 
+     * reservePC reserves a PC in the db for a certain user at a certain hour
+     * @param user it's the username of the user
+     * @param rn it's the name of the room in which the selected computer is located
+     * @param pcnumb it's the number of the computer that's been reserved to the user
+     * @param D it's the date for which the user asked a reservation
+     * @param T it's the hour for which the user asked a reservation
+     * @return true if the reservation succeds
      */
     public static boolean reservePC(String user, String rn, int pcnumb, String D, String T) {
         try (
@@ -182,7 +182,17 @@ public class DBManager {
         return true;
     }
 
-    public static boolean DeleteReservation(String user, String rn, int pcnumb, String D, String T) {
+    /**
+     * deleteReservation removes a certain booking from the db
+     * @param user it's the username of the user associated to the booking that we want to remove
+     * @param rn it's the room of the computer associated to the reservation
+     * @param pcnumb it's the number of the computer associated to the reservation
+     * @param D it's the date associated to the reservation
+     * @param T it's the hour associated to the reservation
+     * @return true if the removing succeds
+     */
+    
+    public static boolean deleteReservation(String user, String rn, int pcnumb, String D, String T) {
         /* rn=RoomName D=Date T=StartTime*/
 
         try (
@@ -206,7 +216,13 @@ public class DBManager {
         return true;
     }
 
-    public static List<Room> LoadRooms(String D, String T) {
+    /**
+     * loadRooms loads the state of the rooms of the campus at a given date and time
+     * @param D it's the date in which we're intrested to check the rooms' state
+     * @param T it's the hour in which we're intrested to check the rooms' state
+     * @return it returns a list of all the rooms
+     */
+    public static List<Room> loadRooms(String D, String T) {
         /* D = Date , T = StartTime */
 
         List<Room> available = new ArrayList<>();
@@ -232,8 +248,16 @@ public class DBManager {
         }
         return null;
     }
-
-    public static List<PC> LoadAvailablePC(String rn, String D, String T) {
+    
+    
+    /**
+     * loadAvailablePCs loads all the PCs that are available in a room at a given date and time
+     * @param rn it's the room name in which we want to look for available PCs
+     * @param D it's the date in which we're interested to look for available PCs
+     * @param T it's the hour in which we're interested to look for available PCs
+     * @return it returns a list of all the available PCs
+     */
+    public static List<PC> loadAvailablePCs(String rn, String D, String T) {
         /* rn = RoomName, D = date, T=time */
 
         List<PC> available = new ArrayList<>();
