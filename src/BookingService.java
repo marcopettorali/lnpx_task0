@@ -35,11 +35,13 @@ public class BookingService extends Application {
     //-------------------D----------------//
 
     /**
+     * WindowHeight represents the height of the window
      *
      */
     public static final int WindowHeight = 600;
 
     /**
+     * WindowWidth represents the width of the window
      *
      */
     public static final int WindowWidth = 1000;
@@ -241,7 +243,7 @@ public class BookingService extends Application {
             }
             else
             {
-                List<Room> LAvailableRoom= DBManager.LoadRooms(SelectedDate.format(formatter),SelectedHour);
+                List<Room> LAvailableRoom= DBManager.loadRooms(SelectedDate.format(formatter),SelectedHour);
                 TabAvailableRooms.FillTableAvailableRooms(LAvailableRoom);
                 if(pcarray != null){
                     map.getChildren().removeAll(pcarray);
@@ -275,11 +277,11 @@ public class BookingService extends Application {
             int PCnumber=Integer.parseInt(TabReservations.getSelected().getPCnumber());
             String date=TabReservations.getSelected().getDate();
             String hour=TabReservations.getSelected().getHour();
-            DBManager.DeleteReservation(User.username,room,PCnumber,date,hour);
+            DBManager.deleteReservation(User.username,room,PCnumber,date,hour);
             System.out.println(SelectedDate + "  " + date);
             if((SelectedDate!=null)&&(date.compareTo(SelectedDate.format(formatter))==0))
             {
-                List<Room> LAvailableRoom=DBManager.LoadRooms(SelectedDate.format(formatter),SelectedHour);
+                List<Room> LAvailableRoom=DBManager.loadRooms(SelectedDate.format(formatter),SelectedHour);
                 TabAvailableRooms.FillTableAvailableRooms(LAvailableRoom);
             }
             /* *************************************************************** */
@@ -319,7 +321,7 @@ public class BookingService extends Application {
             int index= TabAvailableRooms.gettb().getSelectionModel().getFocusedIndex();
             TabAvailableRooms.relaseSelection();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            List <PC> pcavaiablelist = DBManager.LoadAvailablePC(roomName,DPDay.getValue().format(formatter),SelectedHour);
+            List <PC> pcavaiablelist = DBManager.loadAvailablePCs(roomName,DPDay.getValue().format(formatter),SelectedHour);
             if(!pcavaiablelist.isEmpty())
             {
                 int indexPcSelected = pcavaiablelist.get(0).getPCnumber();
@@ -356,7 +358,13 @@ public class BookingService extends Application {
             TxMessaggiErrore.setText("Choose one room");
         }
     }
-    
+    /**
+     * drawMap draws the map of the computers located in a selected room
+     * @param RowNumber it represents the number of rows in the classroom
+     * @param Capacity it represents the capacity of the room
+     * @param selectedIndex it indicates to the function which position to highlight
+     * @return it returns an array of PCIcon
+     */
     private PCIcon[] drawmap(int RowNumber,int Capacity,int selectedIndex) {
         pcarray = new PCIcon[Capacity];
         int Max = RowNumber;
